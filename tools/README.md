@@ -7,9 +7,15 @@ dependencies — run them with the system `python3`.
 
 **A scanner's `--selftest` prints one verdict line and nothing else**
 (`320/690`). It proves the engine against deliberate fixtures, whose findings
-are not the floor's: a passing run prints `selftest OK — <scanner>`, a failing
-one prints `selftest FAILED — <scanner>` and then what it captured, each line
-prefixed `selftest (<scanner>):`. So a CI log never holds a fixture's
+are not the floor's. The shared form, which 13 of the 22 registry scanners
+print and `test_selftest_quiet.py` pins for eight of them, is `selftest OK —
+<scanner>` on a pass; a failure prints `selftest FAILED — <scanner>` and then
+what it captured, each line prefixed `selftest (<scanner>):`. The other nine
+still print exactly one line on a pass, in an older form: `selftest OK` with no
+name (`secretscan`, `leakscan`, `linkscan`, `indexscan`, `licenscan`),
+`<scanner> selftest: OK` (`reviewscan`, `publishscan`) and `<scanner> selftest:
+ok (0 failure(s))` (`harvestscan`, `pointerscan`). Counted 2026-11-27; moving
+those nine to the shared form is not done. So a CI log never holds a fixture's
 `✗ <scanner>: N finding(s)` beside a real one.
 
 ## What these scans cannot see (read this before trusting a clean run)
@@ -934,9 +940,11 @@ secretscan keeps credentials out; both guard *content*. `licenscan` guards the
 licence story: publish a repo whose licence is missing, self-contradictory, or
 carries someone else's copyleft code and you grant the wrong rights (or, with no
 LICENSE, none — the default is all-rights-reserved). Unlike the other two it is a
-**pre-publish** check, not an every-commit one: a private repo carries licence
-mess harmlessly; it only bites at the public boundary that `AUTONOMY` already
-gates.
+**pre-publish** check by purpose, and **opt-in** in the floor: a private repo
+carries licence mess harmlessly; it only bites at the public boundary that
+`AUTONOMY` already gates. So the registry runs it, blocking, on the pre-commit
+hook and on CI only for a repo whose `.atelier-floor.json` declares a `licence`
+(atelier's does); a repo that declares none is skipped on both planes.
 
 ### Three checks, rising specificity
 
@@ -993,7 +1001,9 @@ licenscan:allow:<kind>: <reason>` exempts one kind only (`mismatch`,
 for a permissive mismatch no longer covers a copyleft header (`115/080`). A
 scope naming none of the kinds still exempts the whole line, as it always did.
 Because it's a publish gate, wire it into the **pre-publish** scrub (alongside
-the leak/secret pass) and CI's release job — not the per-commit hook.
+the leak/secret pass) and CI's release job. The floor's own per-commit hook runs
+it too, but only where the repo has declared a `licence`; declaring one is the
+repo saying it is publish-ready, and that is the one switch.
 
 ## `conflictscan.py` — no unresolved merge-conflict marker reaches history
 
@@ -1800,7 +1810,7 @@ Every tracked Markdown link to an archive or a retired log, both sides of
 archive and retired log from disk and compares it with its last committed
 copy.
 
-## `harvestscan.py` — a removed roadmap item arrived somewhere (advisory only)
+## `harvestscan.py` — a removed roadmap item arrived somewhere (warn-only)
 
 The third member of `sizescan`'s family, and the only one that loses work: an
 item **removed** from `ROADMAP.md` that arrives nowhere. Every other check reads
@@ -1839,7 +1849,7 @@ Exit codes: `0` always for findings — **warn-only, never blocking**, because i
 similarity threshold is honestly ungrounded and a check that cannot ground its
 constant may not red a build · `2` usage/config error.
 
-## `pointerscan.py` — the queued-review pointer, refs-only and true (advisory by default)
+## `pointerscan.py` — the queued-review pointer, refs-only and true (warn-only)
 
 Three detectors on one parse of `ROADMAP.md`'s queued-review pointers, and the
 review-bar gate for a new one (below):
@@ -1915,7 +1925,7 @@ more dangerous as noise than beneficial as a guard. Both the engine and its
 tests are archived, not deleted, at git tag `archive/plainscan-2026-09-18`
 (retrieve with `git show archive/plainscan-2026-09-18:tools/plainscan.py`).
 
-## `pathscan.py` — a repo path named in prose still resolves (advisory only)
+## `pathscan.py` — a repo path named in prose still resolves (warn-only)
 
 A file rename breaks every **named** path reference outside the diff that
 caused it — bare prose (`docs/method/REVIEW.md`) and backtick spans alike,

@@ -158,6 +158,18 @@ apex in full) is counted at PRO15.
 | AUT31 | Encode the policy: a live-risk constraint becomes a gate, not a note | directive-only | invisible: an omission |
 | AUT32 | Before deleting or overwriting what the agent didn't create, look first and surface a contradiction (*Before you destroy*) | directive-only | invisible |
 
+> **Update 2026-11-27 (`115/550`, defect 5 of the slice 8 census).** The
+> `AUT14` row and the figures above stand as this census recorded them;
+> nothing in them was rewritten. Since `b462fd7d` (2026-11-16, board `115/110`),
+> `quotescan` reads an edit to `AUTONOMY.md`, the floor region and its stamped
+> copies in a `CLAUDE.md`, and the `permissions` value of a settings file, and
+> asks for the principal's words in the commit body. So `AUT14` is now
+> **enforced, partial (warns)**: advisory on every plane and date, never
+> blocking, and still blind to an unstamped floor copy and to a widening
+> through any settings key but `permissions`. `AUT15` is partly read (a grant
+> edited in `AUTONOMY.md`). The running totals keep slice 2's figures, as slice
+> 6 said they would.
+
 ## GUARDS.md
 
 | Id | Rule (section) | State | Guard, or where a breach shows |

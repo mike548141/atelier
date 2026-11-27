@@ -49,3 +49,9 @@
       wait on item `100`'s before-plane; and, inside the authority slice, an
       unstamped floor copy, a child's autonomy block outside the floor stamp
       and a widening through any settings key but `permissions`.
+      Note 2026-11-27 (`115/550`): the headline above is the 2026-08-15
+      finding as made. The Progress note is the current state: the
+      always-confirm floor's widening-your-own-authority stop is read, warn
+      only, by `quotescan` since `b462fd7d`, so "nothing detects any of them"
+      and "passes every scanner in the registry" no longer hold for that one
+      stop. The other stops and the apex still have no gate.

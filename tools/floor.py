@@ -882,7 +882,8 @@ SCANNERS: tuple[Scanner, ...] = (
         hook=["--staged", "--root", "{root}", "{scope}"],
         ci=["--root", "{root}", "{scope}"],
         advisory=["--warn", "--root", "{root}", "{scope}"],
-        why="records date in absolute UTC, never a drifting 'today'",
+        why="records date in absolute UTC: no relative-time word where a date "
+            "is meant (a bare 'today' with no date cue passes by design)",
         default_scope="docs",
         # 115/090: the dating on a blockquoted (`>`) line, which never blocks,
         # reports instead of passing unseen, and that count reaches the board.

@@ -9,10 +9,12 @@ rights, grant none (no LICENSE ⇒ all-rights-reserved by default), or relicense
 someone else's copyleft code you had no right to relicense. The three together are
 the pre-publish triad: no personal data · no secrets · no licence surprise.
 
-Unlike the other two this is a *pre-publish* check, not an every-commit one — a
-private repo can carry licence mess harmlessly; it only bites at the public
-boundary (AUTONOMY: making a repo public is a floor action, and this is part of
-the scrub that floor implies).
+Unlike the other two this is a *pre-publish* check by purpose — a private repo
+can carry licence mess harmlessly; it only bites at the public boundary
+(AUTONOMY: making a repo public is a floor action, and this is part of the
+scrub that floor implies). The floor registry makes it opt-in: it runs on the
+pre-commit hook and CI only for a repo that declares a `licence` in
+`.atelier-floor.json`, and is skipped on both planes for one that does not.
 
 Three checks, in rising specificity:
 

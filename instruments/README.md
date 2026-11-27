@@ -606,9 +606,13 @@ that cleanup:
   override) — derived at runtime from `$HOME`, so no personal path lives in this
   code. It's the first *writing* instrument (see ADR 0006 addendum); `--dry-run`
   previews, and it reads the source read-only.
-- **Run by hand.** `ccarchive` installs no launchd agent, cron line or login
-  item, and refuses the old `--install-schedule` family of flags by name.
-  Run it more often than Claude Code's `cleanupPeriodDays`.
+- **Run by hand unless you ask for a schedule.** A plain `ccarchive` run
+  installs no launchd agent, cron line or login item. `--install-schedule
+  [--at HH:MM]` sets up one calendar run a day (a launchd calendar agent on
+  macOS, a systemd user timer on Linux), `--schedule-status` reads it and
+  `--uninstall-schedule` removes it, and no schedule ever runs at login
+  (`210/230`; the principal's own machine stays manual by his choice). Whatever
+  runs it, run it more often than Claude Code's `cleanupPeriodDays`.
 - **Retention pairing.** A run that comes round inside Claude Code's
   `cleanupPeriodDays` captures every session, so the archive alone is the durable
   copy — a large `cleanupPeriodDays` is optional (a longer *live* working window

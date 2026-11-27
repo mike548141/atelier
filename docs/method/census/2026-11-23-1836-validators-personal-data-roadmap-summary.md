@@ -284,6 +284,12 @@ points at it:
 the link `docs/reviews/README.md` resolves only in a child. <!-- pathscan:allow: the absent file this names -->
 No rule is counted for the absent file. Named as defect 7.
 
+> **Update 2026-11-27 (`115/550`).** Atelier now carries `docs/reviews/README.md`,
+> adapted to the folder as it is (the brief and verdict files, their `.deferred.md`
+> siblings, `withdrawn/` and `drafts/`), a map that points at `REVIEW.md` for the
+> doctrine and restates none of it. The paragraph above is left as the census
+> recorded it.
+
 ## Counts
 
 Each rule counted once, under the state and place it first shows. Slice 8:
