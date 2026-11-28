@@ -1,4 +1,7 @@
-- [ ] 🔎 **`ccclose` counts a resumed session's own MCP server as live launched work, so
+- [~] 🔎 **`ccclose` counts a resumed session's own MCP server as live launched work, so
+      🔒 Claimed by session 4c77ea94 (`atelier-73`, Opus 5.5), principal-opened by
+      `/atelier:work run`.
+      (claimed 2026-11-28-1439, wt: atelier-qr-4c77-ccclose-mcp)
       the close reads ❌ over a process the session did not start** `[S][tool]`. Found
       2026-11-27 by session a2097e54 (`atelier-b2`) at its close. *Launched work finished*
       reported `live process: pid … · Python …/instruments/browser-fetch/server.py`, "carries

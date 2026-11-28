@@ -1,4 +1,7 @@
-- [ ] 🔎 **Defects the enforcement census found in slice 8, in the
+- [~] 🔎 **Defects the enforcement census found in slice 8, in the
+      🔒 Claimed by session 4c77ea94 (`atelier-73`, Opus 5.5), principal-opened by
+      `/atelier:work run` (item 1 only, the "warns until <date>" state).
+      (claimed 2026-11-28-1439, wt: atelier-qr-4c77-warns-until)
       validators' own stated contracts.** Found 2026-11-23 UTC by
       `020/220` slice 8
       (`docs/method/census/2026-11-23-1836-validators-personal-data-roadmap-summary.md`);
